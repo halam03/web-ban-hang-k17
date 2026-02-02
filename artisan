@@ -1,0 +1,129 @@
+#!/usr/bin/env php
+<?php
+
+define('LARAVEL_START', microtime(true));
+
+if (in_array('serve', $argv ?? [], true)) {
+    $publicDir = __DIR__ . DIRECTORY_SEPARATOR . 'public';
+    $jsOut = $publicDir . DIRECTORY_SEPARATOR . 'js' . DIRECTORY_SEPARATOR . 'app.js';
+    $cssOut = $publicDir . DIRECTORY_SEPARATOR . 'css' . DIRECTORY_SEPARATOR . 'app.css';
+    $watchPidFile = __DIR__ . DIRECTORY_SEPARATOR . 'storage' . DIRECTORY_SEPARATOR . 'app' . DIRECTORY_SEPARATOR . 'npm-watch.pid';
+    $npmCommand = PHP_OS_FAMILY === 'Windows' ? 'npm.cmd' : 'npm';
+
+    $latestSourceMtime = 0;
+    $sourceDirs = [
+        __DIR__ . DIRECTORY_SEPARATOR . 'resources' . DIRECTORY_SEPARATOR . 'js',
+        __DIR__ . DIRECTORY_SEPARATOR . 'resources' . DIRECTORY_SEPARATOR . 'css',
+    ];
+
+    foreach ($sourceDirs as $sourceDir) {
+        if (!is_dir($sourceDir)) {
+            continue;
+        }
+        $iterator = new RecursiveIteratorIterator(
+            new RecursiveDirectoryIterator($sourceDir, FilesystemIterator::SKIP_DOTS)
+        );
+        foreach ($iterator as $fileInfo) {
+            if ($fileInfo->isFile()) {
+                $latestSourceMtime = max($latestSourceMtime, $fileInfo->getMTime());
+            }
+        }
+    }
+
+    $needsBuild = !file_exists($jsOut) || !file_exists($cssOut);
+    if (!$needsBuild) {
+        $outputMtime = min(filemtime($jsOut), filemtime($cssOut));
+        $needsBuild = $latestSourceMtime > $outputMtime;
+    }
+
+    if ($needsBuild) {
+        fwrite(STDOUT, "Building front-end assets (npm run dev)...\n");
+        $buildCommand = $npmCommand . ' run dev';
+        passthru($buildCommand, $exitCode);
+        if ($exitCode !== 0) {
+            fwrite(STDERR, "Asset build failed. Fix npm errors and rerun.\n");
+            exit($exitCode);
+        }
+    }
+
+    $watchRunning = false;
+    if (file_exists($watchPidFile)) {
+        $pid = trim((string) @file_get_contents($watchPidFile));
+        if ($pid !== '') {
+            if (PHP_OS_FAMILY === 'Windows') {
+                $output = [];
+                @exec('tasklist /FI "PID eq ' . $pid . '"', $output);
+                $watchRunning = isset($output[1]) && strpos($output[1], (string) $pid) !== false;
+            } else {
+                $watchRunning = posix_kill((int) $pid, 0);
+            }
+        }
+    }
+
+    if (!$watchRunning) {
+        fwrite(STDOUT, "Starting front-end watcher (npm run watch)...\n");
+        if (!is_dir(dirname($watchPidFile))) {
+            @mkdir(dirname($watchPidFile), 0777, true);
+        }
+
+        if (PHP_OS_FAMILY === 'Windows') {
+            $command = 'start /B "" ' . $npmCommand . ' run watch > NUL 2>&1';
+            pclose(popen($command, 'r'));
+        } else {
+            $command = $npmCommand . ' run watch > /dev/null 2>&1 & echo $!';
+            $pid = trim((string) shell_exec($command));
+            if ($pid !== '') {
+                @file_put_contents($watchPidFile, $pid);
+            }
+        }
+    }
+}
+
+/*
+|--------------------------------------------------------------------------
+| Register The Auto Loader
+|--------------------------------------------------------------------------
+|
+| Composer provides a convenient, automatically generated class loader
+| for our application. We just need to utilize it! We'll require it
+| into the script here so that we do not have to worry about the
+| loading of any of our classes manually. It's great to relax.
+|
+*/
+
+require __DIR__.'/vendor/autoload.php';
+
+$app = require_once __DIR__.'/bootstrap/app.php';
+
+/*
+|--------------------------------------------------------------------------
+| Run The Artisan Application
+|--------------------------------------------------------------------------
+|
+| When we run the console application, the current CLI command will be
+| executed in this console and the response sent back to a terminal
+| or another output device for the developers. Here goes nothing!
+|
+*/
+
+$kernel = $app->make(Illuminate\Contracts\Console\Kernel::class);
+
+$status = $kernel->handle(
+    $input = new Symfony\Component\Console\Input\ArgvInput,
+    new Symfony\Component\Console\Output\ConsoleOutput
+);
+
+/*
+|--------------------------------------------------------------------------
+| Shutdown The Application
+|--------------------------------------------------------------------------
+|
+| Once Artisan has finished running, we will fire off the shutdown events
+| so that any final work may be done by the application before we shut
+| down the process. This is the last thing to happen to the request.
+|
+*/
+
+$kernel->terminate($input, $status);
+
+exit($status);
