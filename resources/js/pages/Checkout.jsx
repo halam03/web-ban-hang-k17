@@ -1,7 +1,8 @@
 ﻿import { useState } from 'react';
-import { useCart } from '../context/CartContext';
-import { useAuth } from '../context/AuthContext';
 import api from '../api';
+import { useAuth } from '../context/AuthContext';
+import { useCart } from '../context/CartContext';
+import { notifyError, notifyInfo, notifySuccess } from '../utils/notify';
 
 const Checkout = () => {
     const { items, total, clear } = useCart();
@@ -13,7 +14,6 @@ const Checkout = () => {
         dia_chi: '',
         ghi_chu: '',
     });
-    const [message, setMessage] = useState('');
 
     const handleChange = (e) => {
         setForm((prev) => ({ ...prev, [e.target.name]: e.target.value }));
@@ -22,7 +22,7 @@ const Checkout = () => {
     const handleSubmit = async (e) => {
         e.preventDefault();
         if (items.length === 0) {
-            setMessage('Bạn chưa có sản phẩm trong giỏ hàng.');
+            notifyInfo('Bạn chưa có sản phẩm trong giỏ hàng.');
             return;
         }
         const payload = {
@@ -54,9 +54,9 @@ const Checkout = () => {
         try {
             await api.post('/orders', payload);
             clear();
-            setMessage('Đơn hàng đã được ghi nhận.');
+            notifySuccess('Đơn hàng đã được ghi nhận.');
         } catch (err) {
-            setMessage('Không thể tạo đơn hàng.');
+            notifyError('Không thể tạo đơn hàng.');
         }
     };
 
@@ -91,7 +91,6 @@ const Checkout = () => {
                             </div>
                             <button className="btn btn-block btn-primary font-weight-bold py-3" type="submit">Đặt hàng</button>
                         </form>
-                        {message && <div className="alert alert-info mt-3">{message}</div>}
                     </div>
                 </div>
                 <div className="col-lg-4">

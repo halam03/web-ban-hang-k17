@@ -2,6 +2,7 @@ import { Link, useNavigate } from 'react-router-dom';
 import { useState } from 'react';
 import { useAuth } from '../context/AuthContext';
 import { useCart } from '../context/CartContext';
+import { notifyError, notifySuccess } from '../utils/notify';
 
 const Header = () => {
     const { user, logout } = useAuth();
@@ -19,8 +20,13 @@ const Header = () => {
     };
 
     const handleLogout = async () => {
-        await logout();
-        navigate('/');
+        try {
+            await logout();
+            notifySuccess('Đăng xuất thành công.');
+            navigate('/');
+        } catch (err) {
+            notifyError('Không thể đăng xuất. Vui lòng thử lại.');
+        }
     };
 
     return (

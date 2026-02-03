@@ -1,6 +1,7 @@
 ﻿import { useEffect, useMemo, useState } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
+import { notifyError, notifySuccess } from '../utils/notify';
 
 const AuthPage = ({ initialTab }) => {
     const location = useLocation();
@@ -14,8 +15,6 @@ const AuthPage = ({ initialTab }) => {
     }, [initialTab, location.pathname]);
 
     const [tab, setTab] = useState(defaultTab);
-    const [error, setError] = useState('');
-    const [success, setSuccess] = useState('');
     const [submitting, setSubmitting] = useState(false);
 
     const [loginForm, setLoginForm] = useState({ username: '', password: '' });
@@ -33,8 +32,6 @@ const AuthPage = ({ initialTab }) => {
     }, [defaultTab]);
 
     useEffect(() => {
-        setError('');
-        setSuccess('');
         setSubmitting(false);
     }, [tab]);
 
@@ -57,18 +54,17 @@ const AuthPage = ({ initialTab }) => {
 
     const handleLoginSubmit = async (event) => {
         event.preventDefault();
-        setError('');
-        setSuccess('');
         setSubmitting(true);
         try {
             const user = await login(loginForm);
+            notifySuccess('Đăng nhập thành công.');
             if (user?.loai_user === 0) {
                 navigate('/admin');
             } else {
                 navigate('/');
             }
         } catch (err) {
-            setError('Đăng nhập thất bại. Vui lòng kiểm tra lại thông tin.');
+            notifyError('Đăng nhập thất bại. Vui lòng kiểm tra lại thông tin.');
         } finally {
             setSubmitting(false);
         }
@@ -76,10 +72,8 @@ const AuthPage = ({ initialTab }) => {
 
     const handleRegisterSubmit = async (event) => {
         event.preventDefault();
-        setError('');
-        setSuccess('');
         if (registerForm.password !== registerForm.confirmPassword) {
-            setError('Mật khẩu xác nhận không khớp.');
+            notifyError('Mật khẩu xác nhận không khớp.');
             return;
         }
         setSubmitting(true);
@@ -93,9 +87,10 @@ const AuthPage = ({ initialTab }) => {
                 ngay_sinh: registerForm.ngay_sinh || null,
             };
             await register(payload);
+            notifySuccess('Đăng ký thành công.');
             navigate('/');
         } catch (err) {
-            setError('Đăng ký thất bại. Vui lòng thử lại.');
+            notifyError('Đăng ký thất bại. Vui lòng thử lại.');
         } finally {
             setSubmitting(false);
         }
@@ -258,9 +253,6 @@ const AuthPage = ({ initialTab }) => {
                         </form>
                     )}
 
-                    {(error || success) && (
-                        <div className={`auth-message ${error ? 'is-error' : 'is-success'}`}>{error || success}</div>
-                    )}
                 </div>
             </div>
         </div>
