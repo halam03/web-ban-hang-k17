@@ -19,8 +19,13 @@ const AdminLayout = () => {
     };
 
     const handleLogout = async () => {
-        await logout();
-        navigate('/');
+        try {
+            await logout();
+            notifySuccess('Đăng xuất thành công.');
+            navigate('/');
+        } catch (err) {
+            notifyError('Không thể đăng xuất. Vui lòng thử lại.');
+        }
     };
 
     return (

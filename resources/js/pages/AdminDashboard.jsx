@@ -1,7 +1,8 @@
 ﻿import { useEffect, useMemo, useState } from 'react';
+import { useSearchParams } from 'react-router-dom';
 import api from '../api';
 import { useAuth } from '../context/AuthContext';
-import { useSearchParams } from 'react-router-dom';
+import { confirmDelete, notifyError, notifySuccess } from '../utils/notify';
 
 const emptyForm = {
     ma_sp: '',
@@ -280,23 +281,37 @@ const AdminDashboard = () => {
         if (detailFiles.length) {
             detailFiles.forEach((file) => payload.append('images_files[]', file));
         }
-        if (editingId) {
-            payload.append('_method', 'PUT');
-            await api.post(`/admin/products/${editingId}`, payload, {
-                headers: { 'Content-Type': 'multipart/form-data' },
-            });
-        } else {
-            await api.post('/admin/products', payload, {
-                headers: { 'Content-Type': 'multipart/form-data' },
-            });
+
+        try {
+            if (editingId) {
+                payload.append('_method', 'PUT');
+                await api.post(`/admin/products/${editingId}`, payload, {
+                    headers: { 'Content-Type': 'multipart/form-data' },
+                });
+                notifySuccess('Đã xóa tài khoản.');
+            } else {
+                await api.post('/admin/products', payload, {
+                    headers: { 'Content-Type': 'multipart/form-data' },
+                });
+                notifySuccess('Tạo sản phẩm thành công.');
+            }
+            resetForm();
+            fetchProducts();
+        } catch (err) {
+            notifyError('Không thể xóa tài khoản. Vui lòng thử lại.');
         }
-        resetForm();
-        fetchProducts();
     };
 
     const handleDelete = async (maSp) => {
-        await api.delete(`/admin/products/${maSp}`);
-        fetchProducts();
+        const ok = await confirmDelete('Bạn chắc chắn muốn xóa tài khoản này?');
+        if (!ok) return;
+        try {
+            await api.delete(`/admin/products/${maSp}`);
+            notifySuccess('Đã xóa sản phẩm.');
+            fetchProducts();
+        } catch (err) {
+            notifyError('Không thể xóa sản phẩm. Vui lòng thử lại.');
+        }
     };
 
     const openProductDetail = (item) => {
@@ -340,19 +355,29 @@ const AdminDashboard = () => {
         try {
             if (categoryEditingId) {
                 await api.put(`/admin/categories/${categoryEditingId}`, { loai: categoryForm.loai });
+                notifySuccess('Cập nhật danh mục thành công.');
             } else {
                 await api.post('/admin/categories', categoryForm);
+                notifySuccess('Tạo danh mục thành công.');
             }
             closeCategoryForm();
             fetchCategories();
         } catch (err) {
             setCategoryError('Không thể lưu danh mục. Vui lòng kiểm tra lại.');
+            notifyError('Không thể lưu danh mục. Vui lòng kiểm tra lại.');
         }
     };
 
     const handleCategoryDelete = async (maLoai) => {
-        await api.delete(`/admin/categories/${maLoai}`);
-        fetchCategories();
+        const ok = await confirmDelete('Bạn chắc chắn muốn xóa danh mục này?');
+        if (!ok) return;
+        try {
+            await api.delete(`/admin/categories/${maLoai}`);
+            notifySuccess('Đã xóa danh mục.');
+            fetchCategories();
+        } catch (err) {
+            notifyError('Không thể xóa danh mục. Vui lòng thử lại.');
+        }
     };
 
     const openOrderDetail = async (orderId) => {
@@ -394,16 +419,26 @@ const AdminDashboard = () => {
         e.preventDefault();
         if (!orderEditingId) return;
         if (orderLocked) return;
-        await api.put(`/admin/orders/${orderEditingId}`, orderForm);
-        closeOrderForm();
-        fetchOrders();
+        try {
+            await api.put(`/admin/orders/${orderEditingId}`, orderForm);
+            notifySuccess('Cập nhật đơn hàng thành công.');
+            closeOrderForm();
+            fetchOrders();
+        } catch (err) {
+            notifyError('Không thể cập nhật đơn hàng. Vui lòng thử lại.');
+        }
     };
 
     const handleOrderDelete = async (orderId) => {
-        const ok = window.confirm('Bạn chắc chắn muốn xóa đơn hàng này?');
+        const ok = await confirmDelete('Bạn chắc chắn muốn xóa đơn hàng này?');
         if (!ok) return;
-        await api.delete(`/admin/orders/${orderId}`);
-        fetchOrders();
+        try {
+            await api.delete(`/admin/orders/${orderId}`);
+            notifySuccess('Đã xóa đơn hàng.');
+            fetchOrders();
+        } catch (err) {
+            notifyError('Không thể xóa đơn hàng. Vui lòng thử lại.');
+        }
     };
 
     const openUserCreate = () => {
@@ -446,20 +481,31 @@ const AdminDashboard = () => {
         if (!payload.password) {
             delete payload.password;
         }
-        if (userEditingId) {
-            await api.put(`/admin/users/${userEditingId}`, payload);
-        } else {
-            await api.post('/admin/users', payload);
+        try {
+            if (userEditingId) {
+                await api.put(`/admin/users/${userEditingId}`, payload);
+                notifySuccess('Cập nhật người dùng thành công.');
+            } else {
+                await api.post('/admin/users', payload);
+                notifySuccess('Tạo người dùng thành công.');
+            }
+            closeUserForm();
+            fetchUsers();
+        } catch (err) {
+            notifyError('Không thể lưu người dùng. Vui lòng thử lại.');
         }
-        closeUserForm();
-        fetchUsers();
     };
 
     const handleUserDelete = async (username) => {
-        const ok = window.confirm('Bạn chắc chắn muốn xóa tài khoản này?');
+        const ok = await confirmDelete('Bạn chắc chắn muốn xóa tài khoản này?');
         if (!ok) return;
-        await api.delete(`/admin/users/${username}`);
-        fetchUsers();
+        try {
+            await api.delete(`/admin/users/${username}`);
+            notifySuccess('Đã xóa tài khoản.');
+            fetchUsers();
+        } catch (err) {
+            notifyError('Không thể xóa tài khoản. Vui lòng thử lại.');
+        }
     };
 
     if (user?.loai_user !== 0) {

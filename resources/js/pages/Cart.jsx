@@ -1,8 +1,17 @@
-﻿import { useCart } from '../context/CartContext';
-import { Link } from 'react-router-dom';
+﻿import { Link } from 'react-router-dom';
+import { useCart } from '../context/CartContext';
+import { confirmDelete, notifySuccess } from '../utils/notify';
 
 const Cart = () => {
     const { items, updateItem, total, clear } = useCart();
+
+    const handleClear = async () => {
+        if (items.length === 0) return;
+        const ok = await confirmDelete('Bạn chắc chắn muốn xóa toàn bộ giỏ hàng?');
+        if (!ok) return;
+        clear();
+        notifySuccess('Đã xóa giỏ hàng.');
+    };
 
     return (
         <div className="container-fluid">

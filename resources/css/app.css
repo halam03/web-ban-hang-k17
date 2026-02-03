@@ -1,4 +1,5 @@
 ﻿@import url('https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@400;500;600;700&display=swap');
+@import 'sweetalert2/dist/sweetalert2.min.css';
 
 :root {
     font-family: 'Be Vietnam Pro', 'Roboto', sans-serif;
