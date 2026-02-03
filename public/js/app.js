@@ -51381,11 +51381,7 @@ function _arrayWithHoles(r) { if (Array.isArray(r)) return r; }
 var emptyForm = {
   ma_sp: '',
   ten_sp: '',
-  ma_hang_sx: '',
   ma_loai: '',
-  ma_dt: '',
-  ma_chat_lieu: '',
-  ma_nuoc_sx: '',
   gia_lon_nhat: '',
   anh_dai_dien: '',
   gioi_thieu_sp: '',
@@ -51517,55 +51513,59 @@ var AdminDashboard = function AdminDashboard() {
     setOrderForm = _useState42[1];
   var _useState43 = (0,react__WEBPACK_IMPORTED_MODULE_0__.useState)(false),
     _useState44 = _slicedToArray(_useState43, 2),
-    showUserForm = _useState44[0],
-    setShowUserForm = _useState44[1];
-  var _useState45 = (0,react__WEBPACK_IMPORTED_MODULE_0__.useState)(null),
+    orderLocked = _useState44[0],
+    setOrderLocked = _useState44[1];
+  var _useState45 = (0,react__WEBPACK_IMPORTED_MODULE_0__.useState)(false),
     _useState46 = _slicedToArray(_useState45, 2),
-    userEditingId = _useState46[0],
-    setUserEditingId = _useState46[1];
-  var _useState47 = (0,react__WEBPACK_IMPORTED_MODULE_0__.useState)(emptyUserForm),
+    showUserForm = _useState46[0],
+    setShowUserForm = _useState46[1];
+  var _useState47 = (0,react__WEBPACK_IMPORTED_MODULE_0__.useState)(null),
     _useState48 = _slicedToArray(_useState47, 2),
-    userForm = _useState48[0],
-    setUserForm = _useState48[1];
-  var _useState49 = (0,react__WEBPACK_IMPORTED_MODULE_0__.useState)({
+    userEditingId = _useState48[0],
+    setUserEditingId = _useState48[1];
+  var _useState49 = (0,react__WEBPACK_IMPORTED_MODULE_0__.useState)(emptyUserForm),
+    _useState50 = _slicedToArray(_useState49, 2),
+    userForm = _useState50[0],
+    setUserForm = _useState50[1];
+  var _useState51 = (0,react__WEBPACK_IMPORTED_MODULE_0__.useState)({
       open: false,
       product: null
     }),
-    _useState50 = _slicedToArray(_useState49, 2),
-    productDetailModal = _useState50[0],
-    setProductDetailModal = _useState50[1];
-  var _useState51 = (0,react__WEBPACK_IMPORTED_MODULE_0__.useState)(''),
     _useState52 = _slicedToArray(_useState51, 2),
-    categorySearch = _useState52[0],
-    setCategorySearch = _useState52[1];
-  var _useState53 = (0,react__WEBPACK_IMPORTED_MODULE_0__.useState)(false),
+    productDetailModal = _useState52[0],
+    setProductDetailModal = _useState52[1];
+  var _useState53 = (0,react__WEBPACK_IMPORTED_MODULE_0__.useState)(''),
     _useState54 = _slicedToArray(_useState53, 2),
-    showCategoryForm = _useState54[0],
-    setShowCategoryForm = _useState54[1];
-  var _useState55 = (0,react__WEBPACK_IMPORTED_MODULE_0__.useState)(null),
+    categorySearch = _useState54[0],
+    setCategorySearch = _useState54[1];
+  var _useState55 = (0,react__WEBPACK_IMPORTED_MODULE_0__.useState)(false),
     _useState56 = _slicedToArray(_useState55, 2),
-    categoryEditingId = _useState56[0],
-    setCategoryEditingId = _useState56[1];
-  var _useState57 = (0,react__WEBPACK_IMPORTED_MODULE_0__.useState)(emptyCategoryForm),
+    showCategoryForm = _useState56[0],
+    setShowCategoryForm = _useState56[1];
+  var _useState57 = (0,react__WEBPACK_IMPORTED_MODULE_0__.useState)(null),
     _useState58 = _slicedToArray(_useState57, 2),
-    categoryForm = _useState58[0],
-    setCategoryForm = _useState58[1];
-  var _useState59 = (0,react__WEBPACK_IMPORTED_MODULE_0__.useState)(''),
+    categoryEditingId = _useState58[0],
+    setCategoryEditingId = _useState58[1];
+  var _useState59 = (0,react__WEBPACK_IMPORTED_MODULE_0__.useState)(emptyCategoryForm),
     _useState60 = _slicedToArray(_useState59, 2),
-    categoryError = _useState60[0],
-    setCategoryError = _useState60[1];
-  var _useState61 = (0,react__WEBPACK_IMPORTED_MODULE_0__.useState)('7d'),
+    categoryForm = _useState60[0],
+    setCategoryForm = _useState60[1];
+  var _useState61 = (0,react__WEBPACK_IMPORTED_MODULE_0__.useState)(''),
     _useState62 = _slicedToArray(_useState61, 2),
-    rangeType = _useState62[0],
-    setRangeType = _useState62[1];
-  var _useState63 = (0,react__WEBPACK_IMPORTED_MODULE_0__.useState)({
+    categoryError = _useState62[0],
+    setCategoryError = _useState62[1];
+  var _useState63 = (0,react__WEBPACK_IMPORTED_MODULE_0__.useState)('7d'),
+    _useState64 = _slicedToArray(_useState63, 2),
+    rangeType = _useState64[0],
+    setRangeType = _useState64[1];
+  var _useState65 = (0,react__WEBPACK_IMPORTED_MODULE_0__.useState)({
       labels: [],
       revenues: [],
       orders: []
     }),
-    _useState64 = _slicedToArray(_useState63, 2),
-    statsRange = _useState64[0],
-    setStatsRange = _useState64[1];
+    _useState66 = _slicedToArray(_useState65, 2),
+    statsRange = _useState66[0],
+    setStatsRange = _useState66[1];
   var statusLabels = {
     0: 'Đang chờ',
     1: 'Đang giao',
@@ -51800,11 +51800,7 @@ var AdminDashboard = function AdminDashboard() {
     setForm({
       ma_sp: item.ma_sp,
       ten_sp: item.ten_sp || '',
-      ma_hang_sx: item.ma_hang_sx || '',
       ma_loai: item.ma_loai || '',
-      ma_dt: item.ma_dt || '',
-      ma_chat_lieu: item.ma_chat_lieu || '',
-      ma_nuoc_sx: item.ma_nuoc_sx || '',
       gia_lon_nhat: item.gia_lon_nhat || '',
       anh_dai_dien: item.anh_dai_dien || '',
       gioi_thieu_sp: item.gioi_thieu_sp || '',
@@ -52053,6 +52049,7 @@ var AdminDashboard = function AdminDashboard() {
   var openOrderEdit = function openOrderEdit(order) {
     var _order$status, _order$phuong_thuc_th;
     setOrderEditingId(order.ma_hoa_don);
+    setOrderLocked(order.status === deliveredStatus);
     setOrderForm({
       status: (_order$status = order.status) !== null && _order$status !== void 0 ? _order$status : 0,
       phuong_thuc_thanh_toan: (_order$phuong_thuc_th = order.phuong_thuc_thanh_toan) !== null && _order$phuong_thuc_th !== void 0 ? _order$phuong_thuc_th : 0,
@@ -52066,6 +52063,7 @@ var AdminDashboard = function AdminDashboard() {
     setShowOrderForm(false);
     setOrderEditingId(null);
     setOrderForm(emptyOrderForm);
+    setOrderLocked(false);
   };
   var handleOrderChange = function handleOrderChange(e) {
     var _e$target = e.target,
@@ -52087,7 +52085,7 @@ var AdminDashboard = function AdminDashboard() {
             }
             return _context8.a(2);
           case 1:
-            if (!(orderForm.status === deliveredStatus)) {
+            if (!orderLocked) {
               _context8.n = 2;
               break;
             }
@@ -52759,22 +52757,13 @@ var AdminDashboard = function AdminDashboard() {
             }), /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_4__.jsxs)("div", {
               className: "col-md-4 form-group",
               children: [/*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_4__.jsx)("label", {
-                children: "M\xE3 h\xE3ng"
-              }), /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_4__.jsx)("input", {
-                className: "form-control",
-                name: "ma_hang_sx",
-                value: form.ma_hang_sx,
-                onChange: handleChange
-              })]
-            }), /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_4__.jsxs)("div", {
-              className: "col-md-4 form-group",
-              children: [/*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_4__.jsx)("label", {
-                children: "M\xE3 lo\u1EA1i"
+                children: "Danh m\u1EE5c"
               }), /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_4__.jsxs)("select", {
                 className: "form-control",
                 name: "ma_loai",
                 value: form.ma_loai,
                 onChange: handleChange,
+                required: true,
                 children: [/*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_4__.jsx)("option", {
                   value: "",
                   children: "-- Ch\u1ECDn danh m\u1EE5c --"
@@ -52784,36 +52773,6 @@ var AdminDashboard = function AdminDashboard() {
                     children: item.loai
                   }, item.ma_loai);
                 })]
-              })]
-            }), /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_4__.jsxs)("div", {
-              className: "col-md-4 form-group",
-              children: [/*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_4__.jsx)("label", {
-                children: "Ma DT"
-              }), /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_4__.jsx)("input", {
-                className: "form-control",
-                name: "ma_dt",
-                value: form.ma_dt,
-                onChange: handleChange
-              })]
-            }), /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_4__.jsxs)("div", {
-              className: "col-md-4 form-group",
-              children: [/*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_4__.jsx)("label", {
-                children: "M\xE3 ch\u1EA5t li\u1EC7u"
-              }), /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_4__.jsx)("input", {
-                className: "form-control",
-                name: "ma_chat_lieu",
-                value: form.ma_chat_lieu,
-                onChange: handleChange
-              })]
-            }), /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_4__.jsxs)("div", {
-              className: "col-md-4 form-group",
-              children: [/*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_4__.jsx)("label", {
-                children: "M\xE3 n\u01B0\u1EDBc"
-              }), /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_4__.jsx)("input", {
-                className: "form-control",
-                name: "ma_nuoc_sx",
-                value: form.ma_nuoc_sx,
-                onChange: handleChange
               })]
             }), /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_4__.jsxs)("div", {
               className: "col-md-4 form-group",
@@ -52984,7 +52943,7 @@ var AdminDashboard = function AdminDashboard() {
           })]
         }), /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_4__.jsxs)("form", {
           onSubmit: handleOrderUpdate,
-          children: [orderForm.status === deliveredStatus && /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_4__.jsx)("div", {
+          children: [orderLocked && /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_4__.jsx)("div", {
             className: "alert alert-info",
             children: "\u0110\u01A1n h\xE0ng \u0111\xE3 giao. Kh\xF4ng th\u1EC3 ch\u1EC9nh s\u1EEDa n\u1EEFa."
           }), /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_4__.jsxs)("div", {
@@ -52998,7 +52957,7 @@ var AdminDashboard = function AdminDashboard() {
                 name: "status",
                 value: orderForm.status,
                 onChange: handleOrderChange,
-                disabled: orderForm.status === deliveredStatus,
+                disabled: orderLocked,
                 children: statusOptions.map(function (option) {
                   return /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_4__.jsx)("option", {
                     value: option.value,
@@ -53015,7 +52974,7 @@ var AdminDashboard = function AdminDashboard() {
                 name: "phuong_thuc_thanh_toan",
                 value: orderForm.phuong_thuc_thanh_toan,
                 onChange: handleOrderChange,
-                disabled: orderForm.status === deliveredStatus,
+                disabled: orderLocked,
                 children: [/*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_4__.jsx)("option", {
                   value: 0,
                   children: "Giao h\xE0ng (COD)"
@@ -53039,7 +52998,7 @@ var AdminDashboard = function AdminDashboard() {
                 name: "ghi_chu",
                 value: orderForm.ghi_chu,
                 onChange: handleOrderChange,
-                disabled: orderForm.status === deliveredStatus
+                disabled: orderLocked
               })]
             })]
           }), /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_4__.jsxs)("div", {
@@ -53047,7 +53006,7 @@ var AdminDashboard = function AdminDashboard() {
             children: [/*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_4__.jsx)("button", {
               className: "btn btn-primary",
               type: "submit",
-              disabled: orderForm.status === deliveredStatus,
+              disabled: orderLocked,
               children: "L\u01B0u"
             }), /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_4__.jsx)("button", {
               className: "btn btn-outline-secondary",

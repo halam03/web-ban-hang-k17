@@ -6,11 +6,7 @@ import { useSearchParams } from 'react-router-dom';
 const emptyForm = {
     ma_sp: '',
     ten_sp: '',
-    ma_hang_sx: '',
     ma_loai: '',
-    ma_dt: '',
-    ma_chat_lieu: '',
-    ma_nuoc_sx: '',
     gia_lon_nhat: '',
     anh_dai_dien: '',
     gioi_thieu_sp: '',
@@ -66,6 +62,7 @@ const AdminDashboard = () => {
     const [detailModal, setDetailModal] = useState({ open: false, order: null });
     const [orderEditingId, setOrderEditingId] = useState(null);
     const [orderForm, setOrderForm] = useState(emptyOrderForm);
+    const [orderLocked, setOrderLocked] = useState(false);
     const [showUserForm, setShowUserForm] = useState(false);
     const [userEditingId, setUserEditingId] = useState(null);
     const [userForm, setUserForm] = useState(emptyUserForm);
@@ -255,11 +252,7 @@ const AdminDashboard = () => {
         setForm({
             ma_sp: item.ma_sp,
             ten_sp: item.ten_sp || '',
-            ma_hang_sx: item.ma_hang_sx || '',
             ma_loai: item.ma_loai || '',
-            ma_dt: item.ma_dt || '',
-            ma_chat_lieu: item.ma_chat_lieu || '',
-            ma_nuoc_sx: item.ma_nuoc_sx || '',
             gia_lon_nhat: item.gia_lon_nhat || '',
             anh_dai_dien: item.anh_dai_dien || '',
             gioi_thieu_sp: item.gioi_thieu_sp || '',
@@ -371,6 +364,7 @@ const AdminDashboard = () => {
 
     const openOrderEdit = (order) => {
         setOrderEditingId(order.ma_hoa_don);
+        setOrderLocked(order.status === deliveredStatus);
         setOrderForm({
             status: order.status ?? 0,
             phuong_thuc_thanh_toan: order.phuong_thuc_thanh_toan ?? 0,
@@ -385,6 +379,7 @@ const AdminDashboard = () => {
         setShowOrderForm(false);
         setOrderEditingId(null);
         setOrderForm(emptyOrderForm);
+        setOrderLocked(false);
     };
 
     const handleOrderChange = (e) => {
@@ -398,7 +393,7 @@ const AdminDashboard = () => {
     const handleOrderUpdate = async (e) => {
         e.preventDefault();
         if (!orderEditingId) return;
-        if (orderForm.status === deliveredStatus) return;
+        if (orderLocked) return;
         await api.put(`/admin/orders/${orderEditingId}`, orderForm);
         closeOrderForm();
         fetchOrders();
@@ -788,12 +783,8 @@ const AdminDashboard = () => {
                                     <input className="form-control" name="ten_sp" value={form.ten_sp} onChange={handleChange} required />
                                 </div>
                                 <div className="col-md-4 form-group">
-                                    <label>Mã hãng</label>
-                                    <input className="form-control" name="ma_hang_sx" value={form.ma_hang_sx} onChange={handleChange} />
-                                </div>
-                                <div className="col-md-4 form-group">
-                                    <label>Mã loại</label>
-                                    <select className="form-control" name="ma_loai" value={form.ma_loai} onChange={handleChange}>
+                                    <label>Danh mục</label>
+                                    <select className="form-control" name="ma_loai" value={form.ma_loai} onChange={handleChange} required>
                                         <option value="">-- Chọn danh mục --</option>
                                         {categoryOptions.map((item) => (
                                             <option key={item.ma_loai} value={item.ma_loai}>
@@ -801,18 +792,6 @@ const AdminDashboard = () => {
                                             </option>
                                         ))}
                                     </select>
-                                </div>
-                                <div className="col-md-4 form-group">
-                                    <label>Ma DT</label>
-                                    <input className="form-control" name="ma_dt" value={form.ma_dt} onChange={handleChange} />
-                                </div>
-                                <div className="col-md-4 form-group">
-                                    <label>Mã chất liệu</label>
-                                    <input className="form-control" name="ma_chat_lieu" value={form.ma_chat_lieu} onChange={handleChange} />
-                                </div>
-                                <div className="col-md-4 form-group">
-                                    <label>Mã nước</label>
-                                    <input className="form-control" name="ma_nuoc_sx" value={form.ma_nuoc_sx} onChange={handleChange} />
                                 </div>
                                 <div className="col-md-4 form-group">
                                     <label>Giá</label>
@@ -917,7 +896,7 @@ const AdminDashboard = () => {
                             </button>
                         </div>
                         <form onSubmit={handleOrderUpdate}>
-                            {orderForm.status === deliveredStatus && (
+                            {orderLocked && (
                                 <div className="alert alert-info">
                                     Đơn hàng đã giao. Không thể chỉnh sửa nữa.
                                 </div>
@@ -930,7 +909,7 @@ const AdminDashboard = () => {
                                         name="status"
                                         value={orderForm.status}
                                         onChange={handleOrderChange}
-                                        disabled={orderForm.status === deliveredStatus}
+                                        disabled={orderLocked}
                                     >
                                         {statusOptions.map((option) => (
                                             <option key={option.value} value={option.value}>
@@ -946,7 +925,7 @@ const AdminDashboard = () => {
                                         name="phuong_thuc_thanh_toan"
                                         value={orderForm.phuong_thuc_thanh_toan}
                                         onChange={handleOrderChange}
-                                        disabled={orderForm.status === deliveredStatus}
+                                        disabled={orderLocked}
                                     >
                                         <option value={0}>Giao hàng (COD)</option>
                                         <option value={1}>Chuyển khoản</option>
@@ -956,11 +935,11 @@ const AdminDashboard = () => {
                                 </div>
                                 <div className="col-md-12 form-group">
                                     <label>Ghi chú</label>
-                                    <input className="form-control" name="ghi_chu" value={orderForm.ghi_chu} onChange={handleOrderChange} disabled={orderForm.status === deliveredStatus} />
+                                    <input className="form-control" name="ghi_chu" value={orderForm.ghi_chu} onChange={handleOrderChange} disabled={orderLocked} />
                                 </div>
                             </div>
                             <div className="admin-form-actions">
-                                <button className="btn btn-primary" type="submit" disabled={orderForm.status === deliveredStatus}>
+                                <button className="btn btn-primary" type="submit" disabled={orderLocked}>
                                     Lưu
                                 </button>
                                 <button className="btn btn-outline-secondary" type="button" onClick={closeOrderForm}>
